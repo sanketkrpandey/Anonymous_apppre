@@ -12,12 +12,17 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('theme');
+      return saved !== null ? JSON.parse(saved) : false; // saved should be "true" or "false"
+    } catch (e) {
+      console.warn('Invalid theme value in localStorage. Resetting to light mode.');
+      return false;
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem('theme', JSON.stringify(isDark));
+    localStorage.setItem('theme', JSON.stringify(isDark)); // store as "true"/"false"
     if (isDark) {
       document.documentElement.classList.add('dark');
     } else {
@@ -25,7 +30,7 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [isDark]);
 
-  const toggleTheme = () => setIsDark(!isDark);
+  const toggleTheme = () => setIsDark(prev => !prev);
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
